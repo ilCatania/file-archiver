@@ -18,6 +18,7 @@ package it.gcatania.filearchiver.test
 import groovy.io.FileType
 
 import java.nio.file.Files
+import java.util.zip.ZipFile
 
 import org.apache.commons.lang3.time.FastDateFormat
 import org.slf4j.Logger
@@ -61,7 +62,7 @@ abstract class BaseFileArchiverSpec extends Specification
 
     def cleanup()
     {
-        //        FileUtils.deleteDirectory(workingDir);
+        //                FileUtils.deleteDirectory(workingDir);
     }
 
     protected final void directoryContentsMatch(String expectedContentsPath)
@@ -69,8 +70,8 @@ abstract class BaseFileArchiverSpec extends Specification
         File expectedContentsFile = new File(BaseFileArchiverSpec.class.getResource(expectedContentsPath).toURI())
         String workingPathPrefix = workingDir.canonicalPath + File.separator;
         int canonicalPathPrefixLength = workingPathPrefix.length()
-        Map<String, String> expectedPaths = [:]
 
+        Map<String, String> expectedPaths = [:]
         List<String> unexpectedPaths = [];
 
         expectedContentsFile.eachLine(
@@ -88,8 +89,21 @@ abstract class BaseFileArchiverSpec extends Specification
                         unexpectedPaths.add(actualPath.substring(canonicalPathPrefixLength));
                     }
                 })
-        def missingPaths = expectedPaths.values()
+        def missingPaths = expectedPaths.values()  // this is mostly just to display a better error
         assert missingPaths.empty &  unexpectedPaths.empty
-        log.debug('Successfully checked: {} against: {}', workingDir, expectedContentsFile)
+        log.debug('Successfully checked: {} against: {}', workingDir, expectedContentsPath)
+    }
+
+    protected final void zipFileContentsMatch(String zipFilePath, String expectedEntriesPath)
+    {
+        File expectedEntriesFile = new File(BaseFileArchiverSpec.class.getResource(expectedEntriesPath).toURI())
+        ZipFile zipFile = new ZipFile(new File(workingDir, zipFilePath));
+
+        Set<String> expectedZipEntries = new HashSet(expectedEntriesFile.readLines())
+        def unexpectedZipEntries = zipFile.entries().toSet().collect({it.name}).findAll({ !expectedZipEntries.remove(it) })
+        def missingZipEntries = expectedZipEntries; // this is just to display a better error
+
+        assert missingZipEntries.empty & unexpectedZipEntries.empty
+        log.debug('Successfully checked: {} against: {}', zipFilePath, expectedEntriesPath)
     }
 }

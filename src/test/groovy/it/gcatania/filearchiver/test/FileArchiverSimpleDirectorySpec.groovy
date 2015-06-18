@@ -23,11 +23,11 @@ import it.gcatania.filearchiver.FileArchiver
  * @version $Id$
  *
  */
-class FileArchiver1Spec extends BaseFileArchiverSpec
+class FileArchiveSimpleDirectorySpec extends BaseFileArchiverSpec
 {
     protected String getTreePropertiesPath()
     {
-        return '/trees/tree1/input.properties'
+        return '/trees/simple/input.properties'
     }
 
     def 'test reference date 2015-04-01 and zip after 0 months'()
@@ -39,7 +39,11 @@ class FileArchiver1Spec extends BaseFileArchiverSpec
         fa.handleDirectory(workingDir);
 
         then:
-        directoryContentsMatch('/trees/tree1/output-2015-04-01-zipAfter0Months.txt')
+        directoryContentsMatch('/trees/simple/output-2015-04-01-zipAfter0Months.txt')
+        zipFileContentsMatch('2015/01.zip', '/trees/simple/zipEntries-2015-01.txt')
+        zipFileContentsMatch('2015/02.zip', '/trees/simple/zipEntries-2015-02.txt')
+        zipFileContentsMatch('2015/03.zip', '/trees/simple/zipEntries-2015-03.txt')
+        zipFileContentsMatch('2015/04.zip', '/trees/simple/zipEntries-2015-04.txt')
     }
 
     def 'test reference date 2015-06-01 and zip after 2 months'()
@@ -51,7 +55,7 @@ class FileArchiver1Spec extends BaseFileArchiverSpec
         fa.handleDirectory(workingDir);
 
         then:
-        directoryContentsMatch('/trees/tree1/output-2015-06-01-zipAfter2Months.txt')
+        directoryContentsMatch('/trees/simple/output-2015-06-01-zipAfter2Months.txt')
     }
     def 'test reference date 2015-06-01 and zip after 5 months'()
     {
@@ -62,6 +66,6 @@ class FileArchiver1Spec extends BaseFileArchiverSpec
         fa.handleDirectory(workingDir);
 
         then:
-        directoryContentsMatch('/trees/tree1/output-2015-06-01-zipAfter2Months.txt')
+        directoryContentsMatch('/trees/simple/output-2015-06-01-zipAfter2Months.txt')
     }
 }
