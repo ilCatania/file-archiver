@@ -45,7 +45,7 @@ class FileArchiver {
     FastDateFormat monthFormat = FastDateFormat.getInstance('MM')
     FastDateFormat dayFormat = FastDateFormat.getInstance('dd')
     Date referenceDate;
-    String currentMonthPath
+    String currentMonthPath 
     
     FileArchiver(Date referenceDate) {
         this.referenceDate = referenceDate
