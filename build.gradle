@@ -1,5 +1,6 @@
 apply plugin: 'application'
 apply plugin: 'groovy'
+apply plugin: 'jacoco'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'license'
 
@@ -40,7 +41,7 @@ jar {
 license {
     header rootProject.file('src/main/etc/header.txt')
     strictCheck true
-    excludes(["**/*.txt"])
+    excludes(['**/*.txt', '**/logback.xml', '**/*.properties'])
     ext.year = Calendar.getInstance().get(Calendar.YEAR)
     ext.owner = 'Gabriele Catania'
     ext.email = 'gabriele.ctn@gmail.com'
