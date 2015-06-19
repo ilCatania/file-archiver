@@ -69,7 +69,7 @@ class FileArchiver
         {
             String formattedYear = YEAR_FORMAT.format(cal);
             String formattedMonth = MONTH_FORMAT.format(cal);
-            pathPatternsToExclude.add(Pattern.compile("${formattedYear}${File.separator}${formattedMonth}\$"));
+            pathPatternsToExclude.add(Pattern.compile(".*${formattedYear}${File.separator}${formattedMonth}\$"));
             cal.add(Calendar.MONTH, -1);
         }
     }
@@ -116,11 +116,11 @@ class FileArchiver
                 { File monthDir ->
                     for(Pattern toExclude in pathPatternsToExclude)
                     {
-                        if(toExclude.matcher(monthDir.name).matches())
+                        if(toExclude.matcher(monthDir.path).matches())
                         {
                             log.debug('Skipping month directory: {}', monthDir.canonicalPath);
                             return;
-                        }
+                        } else log.warn('Pattern: {}, path: {}', toExclude, monthDir.path)
                     }
                     moveToMonthZipFile(monthDir);
                 })

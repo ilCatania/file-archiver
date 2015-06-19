@@ -20,6 +20,7 @@ import groovy.io.FileType
 import java.nio.file.Files
 import java.util.zip.ZipFile
 
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.time.FastDateFormat
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -55,6 +56,7 @@ abstract class BaseFileArchiverSpec extends Specification
                     Date d = DF.parse(modifyDateStr);
                     File toCreate = new File(workingDir, filePath)
                     log.trace('Creating file: {} with modify date: {}', toCreate, d);
+                    toCreate.parentFile.mkdirs();
                     toCreate.createNewFile();
                     toCreate.lastModified = d.time
                 })
@@ -62,7 +64,7 @@ abstract class BaseFileArchiverSpec extends Specification
 
     def cleanup()
     {
-        //                FileUtils.deleteDirectory(workingDir);
+        FileUtils.deleteDirectory(workingDir);
     }
 
     protected final void directoryContentsMatch(String expectedContentsPath)

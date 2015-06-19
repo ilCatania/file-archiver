@@ -66,6 +66,6 @@ class FileArchiveSimpleDirectorySpec extends BaseFileArchiverSpec
         fa.handleDirectory(workingDir);
 
         then:
-        directoryContentsMatch('/trees/simple/output-2015-06-01-zipAfter2Months.txt')
+        directoryContentsMatch('/trees/simple/output-2015-06-01-zipAfter5Months.txt')
     }
 }

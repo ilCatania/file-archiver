@@ -1,0 +1,9 @@
+sent/2015/01.zip
+received/2015/01.zip
+received/urgent/2015/01.zip
+received/urgent/2015/02.zip
+received/lowPriority/2015/03.zip
+sent/2015/04.zip
+sent/2015/05.zip
+2015/06.zip
+2015/07.zip

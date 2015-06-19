@@ -1,0 +1,13 @@
+sent/2015/01/01/file001.txt
+sent/2015/01/02/file002.txt
+received/2015/01/03/file003.txt
+received/2015/01/03/file004.txt
+received/urgent/2015/01/03/file005.txt
+received/urgent/2015/02/01/file006.txt
+received/lowPriority/2015/03/01/file007.txt
+received/lowPriority/2015/03/31/file008.txt
+sent/2015/04/01/file009.txt
+sent/2015/04/30/file010.txt
+sent/2015/05/15/file011.txt
+2015/06/15/file012.txt
+2015/07/15/file013.txt
