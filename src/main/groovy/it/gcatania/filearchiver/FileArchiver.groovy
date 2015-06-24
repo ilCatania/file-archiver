@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.gcatania.filearchiver;
+package it.gcatania.filearchiver
 
 import groovy.io.FileType
 
@@ -29,15 +29,16 @@ import org.slf4j.LoggerFactory
 
 /**
  * this script will iterate the contents of a given folder and rearrange all found files in subfolders by
- * year and month. it will also zip and delete all month folders except the one for the current month
+ * year and month. it will also zip and delete all month folders for the last N months (as specified by the
+ * argument in the constructor). It will ignore any files whose date is after the reference date
  * @author gcatania
  */
 class FileArchiver
 {
     /**
      * zip separator is a slash regardless of platform. If you store paths with backslashes in a zip files
-     * under windows and then decompress them under linux, you will get single file names and not
-     * subdirectories.
+     * under windows and then decompress them under linux, you will get single file names with the whole
+     * path and not subdirectories.
      */
     private static final ZIP_SEPARATOR = '/'
     private static final Logger log = LoggerFactory.getLogger(FileArchiver.class)
@@ -62,52 +63,45 @@ class FileArchiver
      */
     FileArchiver(Date referenceDate, int monthsToKeepUnzipped)
     {
-        this.referenceDate = referenceDate;
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(referenceDate);
+        this.referenceDate = referenceDate
+        Calendar cal = Calendar.getInstance()
+        cal.setTime(referenceDate)
         for (int month in 0..<monthsToKeepUnzipped)
         {
-            String formattedYear = YEAR_FORMAT.format(cal);
-            String formattedMonth = MONTH_FORMAT.format(cal);
-            pathPatternsToExclude.add(Pattern.compile(".*${formattedYear}${File.separator}${formattedMonth}\$"));
-            cal.add(Calendar.MONTH, -1);
+            String formattedYear = YEAR_FORMAT.format(cal)
+            String formattedMonth = MONTH_FORMAT.format(cal)
+            pathPatternsToExclude.add(Pattern.compile(".*${formattedYear}${File.separator}${formattedMonth}\$"))
+            cal.add(Calendar.MONTH, -1)
         }
     }
 
+    /**
+     * creates a file archiver with the default arguments (referenceDate = now and keep 2 months unzipped)
+     */
     FileArchiver()
     {
         this(new Date(), 2)
     }
 
-    static void main(String[] args)
-    {
-        FileArchiver fa = new FileArchiver();
-        args.each(
-                { String pathName ->
-                    log.info('processing path argument: {}', pathName);
-                    fa.handleDirectory(transferDir);
-                })
-    }
-
     protected Date extractDate(File f)
     {
-        // subclasses might want to override
-        return new Date(f.lastModified());
+        // subclasses might want to override, for example to infer the date from the file name instead
+        return new Date(f.lastModified())
     }
 
     private void archive(File f)
     {
-        File parent = f.parentFile;
+        File parent = f.parentFile
         Date fileDate = extractDate(f)
         if(fileDate.after(referenceDate))
         {
-            log.debug('Skipping file: {} with date: {} after reference date: {}', [f, fileDate, referenceDate] as Object[]);
-            return;
+            log.debug('Skipping file: {} with date: {} after reference date: {}', [f, fileDate, referenceDate] as Object[])
+            return
         }
-        File yearSubDir = new File(parent, YEAR_FORMAT.format(fileDate));
-        File monthSubDir = new File(yearSubDir, MONTH_FORMAT.format(fileDate));
-        File daySubDir = new File(monthSubDir, DAY_FORMAT.format(fileDate));
-        FileUtils.moveFileToDirectory(f, daySubDir, true);
+        File yearSubDir = new File(parent, YEAR_FORMAT.format(fileDate))
+        File monthSubDir = new File(yearSubDir, MONTH_FORMAT.format(fileDate))
+        File daySubDir = new File(monthSubDir, DAY_FORMAT.format(fileDate))
+        FileUtils.moveFileToDirectory(f, daySubDir, true)
     }
 
     private void handleYearDir(File dir)
@@ -118,11 +112,11 @@ class FileArchiver
                     {
                         if(toExclude.matcher(monthDir.path).matches())
                         {
-                            log.debug('Skipping month directory: {}', monthDir.canonicalPath);
-                            return;
-                        } else log.warn('Pattern: {}, path: {}', toExclude, monthDir.path)
+                            log.debug('Skipping month directory: {}', monthDir.canonicalPath)
+                            return
+                        }
                     }
-                    moveToMonthZipFile(monthDir);
+                    moveToMonthZipFile(monthDir)
                 })
     }
 
@@ -130,14 +124,14 @@ class FileArchiver
     {
         if(YEAR_PATTERN.matcher(dir.name).matches())
         {
-            handleYearDir(dir);
+            handleYearDir(dir)
         }
         else
         {
             dir.eachFile(FileType.FILES,
-                    { archive(it); })
+                    { archive(it) })
             dir.eachFile(FileType.DIRECTORIES,
-                    { handleDirectory(it); })
+                    { handleDirectory(it) })
         }
     }
 
@@ -148,43 +142,43 @@ class FileArchiver
         {
             // TODO should probably add to existing zip file instead
             log.warn('{} already exists, skipping compression of directory', monthZip.canonicalPath)
-            return;
+            return
         }
         log.debug('Creating zip file: {}', monthZip.canonicalPath)
-        FileOutputStream fos = new FileOutputStream(monthZip);
-        ZipOutputStream zos = new ZipOutputStream(fos);
-        addDirToArchive(zos, monthDir, '');
-        zos.close();
+        FileOutputStream fos = new FileOutputStream(monthZip)
+        ZipOutputStream zos = new ZipOutputStream(fos)
+        addDirToArchive(zos, monthDir, '')
+        zos.close()
         if(monthZip.exists())
         {
             log.trace('Created zip archive: {}', monthZip.canonicalPath)
-            FileUtils.deleteDirectory(monthDir);
+            FileUtils.deleteDirectory(monthDir)
         }
-        else log.warn('File not created: {}', monthZip.canonicalPath);
+        else log.warn('File not created: {}', monthZip.canonicalPath)
     }
 
     private void addDirToArchive(ZipOutputStream zos, File srcFile, String relativePrefix)
     {
-        log.debug('Adding directory: {}', srcFile.name);
+        log.debug('Adding directory: {}', srcFile.name)
         for (File f : srcFile.listFiles())
         {
             String relativeName = relativePrefix + f.name
             if (f.isDirectory())
             {
-                addDirToArchive(zos, f, relativeName + ZIP_SEPARATOR);
-                continue;
+                addDirToArchive(zos, f, relativeName + ZIP_SEPARATOR)
+                continue
             }
-            log.debug("\t Adding file: ${f.name}");
-            byte[] buffer = new byte[1024];
-            FileInputStream fis = new FileInputStream(f);
-            zos.putNextEntry(new ZipEntry(relativeName));
-            int length;
+            log.debug("\t Adding file: ${f.name}")
+            byte[] buffer = new byte[1024]
+            FileInputStream fis = new FileInputStream(f)
+            zos.putNextEntry(new ZipEntry(relativeName))
+            int length
             while ((length = fis.read(buffer)) > 0)
             {
-                zos.write(buffer, 0, length);
+                zos.write(buffer, 0, length)
             }
-            zos.closeEntry();
-            fis.close();
+            zos.closeEntry()
+            fis.close()
         }
     }
 }
